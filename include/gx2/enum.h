@@ -43,27 +43,55 @@ typedef enum GX2AlphaToMaskMode
 
 typedef enum GX2AttribFormat
 {
-   GX2_ATTRIB_FORMAT_UNORM_8              = 0x0,
-   GX2_ATTRIB_FORMAT_UNORM_8_8            = 0x04,
-   GX2_ATTRIB_FORMAT_UNORM_8_8_8_8        = 0x0A,
+   GX2_ATTRIB_TYPE_8                      = 0x00,
+   GX2_ATTRIB_TYPE_4_4                    = 0x01,
+   GX2_ATTRIB_TYPE_16                     = 0x02,
+   GX2_ATTRIB_TYPE_16_FLOAT               = 0x03,
+   GX2_ATTRIB_TYPE_8_8                    = 0x04,
+   GX2_ATTRIB_TYPE_32                     = 0x05,
+   GX2_ATTRIB_TYPE_32_FLOAT               = 0x06,
+   GX2_ATTRIB_TYPE_16_16                  = 0x07,
+   GX2_ATTRIB_TYPE_16_16_FLOAT            = 0x08,
+   GX2_ATTRIB_TYPE_10_11_11_FLOAT         = 0x09,
+   GX2_ATTRIB_TYPE_8_8_8_8                = 0x0A,
+   GX2_ATTRIB_TYPE_10_10_10_2             = 0x0B,
+   GX2_ATTRIB_TYPE_32_32                  = 0x0C,
+   GX2_ATTRIB_TYPE_32_32_FLOAT            = 0x0D,
+   GX2_ATTRIB_TYPE_16_16_16_16            = 0x0E,
+   GX2_ATTRIB_TYPE_16_16_16_16_FLOAT      = 0x0F,
+   GX2_ATTRIB_TYPE_32_32_32               = 0x10,
+   GX2_ATTRIB_TYPE_32_32_32_FLOAT         = 0x11,
+   GX2_ATTRIB_TYPE_32_32_32_32            = 0x12,
+   GX2_ATTRIB_TYPE_32_32_32_32_FLOAT      = 0x13,
 
-   GX2_ATTRIB_FORMAT_UINT_8               = 0x100,
-   GX2_ATTRIB_FORMAT_UINT_8_8             = 0x104,
-   GX2_ATTRIB_FORMAT_UINT_8_8_8_8         = 0x10A,
+   GX2_ATTRIB_FLAG_INTEGER                = 0x100,
+   GX2_ATTRIB_FLAG_SIGNED                 = 0x200,
+   GX2_ATTRIB_FLAG_DEGAMMA                = 0x400,
+   GX2_ATTRIB_FLAG_SCALED                 = 0x800,
 
-   GX2_ATTRIB_FORMAT_SNORM_8              = 0x200,
-   GX2_ATTRIB_FORMAT_SNORM_8_8            = 0x204,
-   GX2_ATTRIB_FORMAT_SNORM_8_8_8_8        = 0x20A,
+   GX2_ATTRIB_FORMAT_UNORM_8              = GX2_ATTRIB_TYPE_8,
+   GX2_ATTRIB_FORMAT_UNORM_8_8            = GX2_ATTRIB_TYPE_8_8,
+   GX2_ATTRIB_FORMAT_UNORM_8_8_8_8        = GX2_ATTRIB_TYPE_8_8_8_8,
 
-   GX2_ATTRIB_FORMAT_SINT_8               = 0x300,
-   GX2_ATTRIB_FORMAT_SINT_8_8             = 0x304,
-   GX2_ATTRIB_FORMAT_SINT_8_8_8_8         = 0x30A,
+   GX2_ATTRIB_FORMAT_UINT_8               = GX2_ATTRIB_FLAG_INTEGER | GX2_ATTRIB_TYPE_8,
+   GX2_ATTRIB_FORMAT_UINT_8_8             = GX2_ATTRIB_FLAG_INTEGER | GX2_ATTRIB_TYPE_8_8,
+   GX2_ATTRIB_FORMAT_UINT_8_8_8_8         = GX2_ATTRIB_FLAG_INTEGER | GX2_ATTRIB_TYPE_8_8_8_8,
 
-   GX2_ATTRIB_FORMAT_FLOAT_32             = 0x806,
-   GX2_ATTRIB_FORMAT_FLOAT_32_32          = 0x80d,
-   GX2_ATTRIB_FORMAT_FLOAT_32_32_32       = 0x811,
-   GX2_ATTRIB_FORMAT_FLOAT_32_32_32_32    = 0x813,
+   GX2_ATTRIB_FORMAT_SNORM_8              = GX2_ATTRIB_FLAG_SIGNED | GX2_ATTRIB_TYPE_8,
+   GX2_ATTRIB_FORMAT_SNORM_8_8            = GX2_ATTRIB_FLAG_SIGNED | GX2_ATTRIB_TYPE_8_8,
+   GX2_ATTRIB_FORMAT_SNORM_8_8_8_8        = GX2_ATTRIB_FLAG_SIGNED | GX2_ATTRIB_TYPE_8_8_8_8,
+
+   GX2_ATTRIB_FORMAT_SINT_8               = GX2_ATTRIB_FLAG_SIGNED | GX2_ATTRIB_FLAG_INTEGER | GX2_ATTRIB_TYPE_8,
+   GX2_ATTRIB_FORMAT_SINT_8_8             = GX2_ATTRIB_FLAG_SIGNED | GX2_ATTRIB_FLAG_INTEGER | GX2_ATTRIB_TYPE_8_8,
+   GX2_ATTRIB_FORMAT_SINT_8_8_8_8         = GX2_ATTRIB_FLAG_SIGNED | GX2_ATTRIB_FLAG_INTEGER | GX2_ATTRIB_TYPE_8_8_8_8,
+
+   GX2_ATTRIB_FORMAT_FLOAT_32             = GX2_ATTRIB_FLAG_SCALED | GX2_ATTRIB_TYPE_32_FLOAT,
+   GX2_ATTRIB_FORMAT_FLOAT_32_32          = GX2_ATTRIB_FLAG_SCALED | GX2_ATTRIB_TYPE_32_32_FLOAT,
+   GX2_ATTRIB_FORMAT_FLOAT_32_32_32       = GX2_ATTRIB_FLAG_SCALED | GX2_ATTRIB_TYPE_32_32_32_FLOAT,
+   GX2_ATTRIB_FORMAT_FLOAT_32_32_32_32    = GX2_ATTRIB_FLAG_SCALED | GX2_ATTRIB_TYPE_32_32_32_32_FLOAT,
 } GX2AttribFormat;
+
+WUT_ENUM_BITMASK_TYPE(GX2AttribFormat)
 
 typedef enum GX2AttribIndexType
 {
@@ -156,6 +184,8 @@ typedef enum GX2DrcRenderMode
 
 typedef enum GX2EventType
 {
+   GX2_EVENT_TYPE_START_OF_PIPE_INTERRUPT = 0,
+   GX2_EVENT_TYPE_END_OF_PIPE_INTERRUPT   = 1,
    GX2_EVENT_TYPE_VSYNC                   = 2,
    GX2_EVENT_TYPE_FLIP                    = 3,
    GX2_EVENT_TYPE_DISPLAY_LIST_OVERRUN    = 4,
@@ -193,6 +223,7 @@ typedef enum GX2IndexType
 
 typedef enum GX2InvalidateMode
 {
+   GX2_INVALIDATE_MODE_NONE                = 0,
    GX2_INVALIDATE_MODE_ATTRIBUTE_BUFFER    = 1 << 0,
    GX2_INVALIDATE_MODE_TEXTURE             = 1 << 1,
    GX2_INVALIDATE_MODE_UNIFORM_BLOCK       = 1 << 2,
@@ -207,6 +238,8 @@ typedef enum GX2InvalidateMode
    GX2_INVALIDATE_MODE_CPU_SHADER          = GX2_INVALIDATE_MODE_CPU | GX2_INVALIDATE_MODE_SHADER,
 } GX2InvalidateMode;
 
+WUT_ENUM_BITMASK_TYPE(GX2InvalidateMode)
+
 typedef enum GX2InitAttributes
 {
    GX2_INIT_END                           = 0,
@@ -214,6 +247,9 @@ typedef enum GX2InitAttributes
    GX2_INIT_CMD_BUF_POOL_SIZE             = 2,
    GX2_INIT_ARGC                          = 7,
    GX2_INIT_ARGV                          = 8,
+   GX2_INIT_PROFILE_MODE                  = 9,
+   GX2_INIT_TOSS_STAGE                    = 10,
+   GX2_INIT_APP_IO_THREAD_STACK_SIZE      = 11,
 } GX2InitAttributes;
 
 typedef enum GX2LogicOp
@@ -270,6 +306,7 @@ typedef enum GX2RenderTarget
    GX2_RENDER_TARGET_4                    = 4,
    GX2_RENDER_TARGET_5                    = 5,
    GX2_RENDER_TARGET_6                    = 6,
+   GX2_RENDER_TARGET_7                    = 7,
 } GX2RenderTarget;
 
 typedef enum GX2RoundingMode
@@ -302,15 +339,45 @@ typedef enum GX2ShaderMode
 
 typedef enum GX2ShaderVarType
 {
+   GX2_SHADER_VAR_TYPE_VOID               = 0,
+   GX2_SHADER_VAR_TYPE_BOOL               = 1,
    GX2_SHADER_VAR_TYPE_INT                = 2,
+   GX2_SHADER_VAR_TYPE_UINT               = 3,
    GX2_SHADER_VAR_TYPE_FLOAT              = 4,
+   GX2_SHADER_VAR_TYPE_DOUBLE             = 5,
+   GX2_SHADER_VAR_TYPE_DOUBLE2            = 6,
+   GX2_SHADER_VAR_TYPE_DOUBLE3            = 7,
+   GX2_SHADER_VAR_TYPE_DOUBLE4            = 8,
    GX2_SHADER_VAR_TYPE_FLOAT2             = 9,
    GX2_SHADER_VAR_TYPE_FLOAT3             = 10,
    GX2_SHADER_VAR_TYPE_FLOAT4             = 11,
+   GX2_SHADER_VAR_TYPE_BOOL2              = 12,
+   GX2_SHADER_VAR_TYPE_BOOL3              = 13,
+   GX2_SHADER_VAR_TYPE_BOOL4              = 14,
    GX2_SHADER_VAR_TYPE_INT2               = 15,
    GX2_SHADER_VAR_TYPE_INT3               = 16,
    GX2_SHADER_VAR_TYPE_INT4               = 17,
-   GX2_SHADER_VAR_TYPE_MATRIX4X4          = 29,
+   GX2_SHADER_VAR_TYPE_UINT2              = 18,
+   GX2_SHADER_VAR_TYPE_UINT3              = 19,
+   GX2_SHADER_VAR_TYPE_UINT4              = 20,
+   GX2_SHADER_VAR_TYPE_FLOAT2X2           = 21,
+   GX2_SHADER_VAR_TYPE_FLOAT2X3           = 22,
+   GX2_SHADER_VAR_TYPE_FLOAT2X4           = 23,
+   GX2_SHADER_VAR_TYPE_FLOAT3X2           = 24,
+   GX2_SHADER_VAR_TYPE_FLOAT3X3           = 25,
+   GX2_SHADER_VAR_TYPE_FLOAT3X4           = 26,
+   GX2_SHADER_VAR_TYPE_FLOAT4X2           = 27,
+   GX2_SHADER_VAR_TYPE_FLOAT4X3           = 28,
+   GX2_SHADER_VAR_TYPE_FLOAT4X4           = 29,
+   GX2_SHADER_VAR_TYPE_DOUBLE2X2          = 30,
+   GX2_SHADER_VAR_TYPE_DOUBLE2X3          = 31,
+   GX2_SHADER_VAR_TYPE_DOUBLE2X4          = 32,
+   GX2_SHADER_VAR_TYPE_DOUBLE3X2          = 33,
+   GX2_SHADER_VAR_TYPE_DOUBLE3X3          = 34,
+   GX2_SHADER_VAR_TYPE_DOUBLE3X4          = 35,
+   GX2_SHADER_VAR_TYPE_DOUBLE4X2          = 36,
+   GX2_SHADER_VAR_TYPE_DOUBLE4X3          = 37,
+   GX2_SHADER_VAR_TYPE_DOUBLE4X4          = 38,
 } GX2ShaderVarType;
 
 typedef enum GX2StencilFunction
@@ -414,6 +481,7 @@ typedef enum GX2SurfaceFormat
 
 typedef enum GX2SurfaceUse
 {
+   GX2_SURFACE_USE_NONE                         = 0,
    GX2_SURFACE_USE_TEXTURE                      = 1 << 0,
    GX2_SURFACE_USE_COLOR_BUFFER                 = 1 << 1,
    GX2_SURFACE_USE_DEPTH_BUFFER                 = 1 << 2,
@@ -421,6 +489,8 @@ typedef enum GX2SurfaceUse
    GX2_SURFACE_USE_TV                           = 1 << 31,
    GX2_SURFACE_USE_TEXTURE_COLOR_BUFFER_TV      = (GX2_SURFACE_USE_TEXTURE | GX2_SURFACE_USE_COLOR_BUFFER | GX2_SURFACE_USE_TV)
 } GX2SurfaceUse;
+
+WUT_ENUM_BITMASK_TYPE(GX2SurfaceUse)
 
 typedef enum GX2TessellationMode
 {
@@ -504,6 +574,7 @@ typedef enum GX2TileMode
 
 typedef enum GX2TVRenderMode
 {
+   GX2_TV_RENDER_MODE_DISABLED            = 0,
    GX2_TV_RENDER_MODE_STANDARD_480P       = 1,
    GX2_TV_RENDER_MODE_WIDE_480P           = 2,
    GX2_TV_RENDER_MODE_WIDE_720P           = 3,

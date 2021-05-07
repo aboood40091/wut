@@ -2,7 +2,6 @@ OUTPUT_FORMAT("elf32-powerpc")
 OUTPUT_ARCH(powerpc:common)
 
 MEMORY {
-   relmem  (rw)  : ORIGIN = 0x00000000, LENGTH = 32M
    codemem (rwx) : ORIGIN = 0x02000000, LENGTH = 224M
    datamem (rw)  : ORIGIN = 0x10000000, LENGTH = 800M
    loadmem (rwx) : ORIGIN = 0xC0000000, LENGTH = 128M
@@ -18,128 +17,93 @@ SECTIONS
    } > codemem
 
    .text ALIGN(32) : {
-      KEEP (*crt0.o(*.init))
-      KEEP (*(.init))
+      KEEP (*(.crt0))
+      KEEP (*(SORT_NONE(.init)))
 
-      *(.text)
-      *(.text.*)
+      *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+      *(.text.exit .text.exit.*)
+      *(.text.startup .text.startup.*)
+      *(.text.hot .text.hot.*)
+      *(SORT(.text.sorted.*))
+      *(.text .stub .text.* .gnu.linkonce.t.*)
       *(.gnu.warning)
-      *(.gnu.linkonce.t.*)
+      *(.glink)
 
-      KEEP (*(.fini))
+      KEEP (*(SORT_NONE(.fini)))
    } > codemem
 
    . = ORIGIN(datamem);
    .rodata : {
-      *(.rodata)
-      *(.rodata.*)
-      *(.gnu.linkonce.r.*)
+      *(.sdata2 .sdata2.* .gnu.linkonce.s2.*)
+      *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*)
 
-      *(.preinit_array)
-      *(.init_array)
-      *(.fini_array)
+      *(.rodata .rodata.* .gnu.linkonce.r.*)
+      *(.rodata1)
+
+      *(.gcc_except_table .gcc_except_table.*)
+      *(.gnu_extab*)
+
+      . = ALIGN(4);
+      PROVIDE_HIDDEN (__preinit_array_start = .);
+      KEEP (*(.preinit_array))
+      PROVIDE_HIDDEN (__preinit_array_end = .);
+
+      PROVIDE_HIDDEN (__init_array_start = .);
+      KEEP (*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
+      KEEP (*(.init_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .ctors))
+      PROVIDE_HIDDEN (__init_array_end = .);
+
+      PROVIDE_HIDDEN (__fini_array_start = .);
+      KEEP (*(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*)))
+      KEEP (*(.fini_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .dtors))
+      PROVIDE_HIDDEN (__fini_array_end = .);
 
       KEEP (*crtbegin.o(.ctors))
-      KEEP (*(EXCLUDE_FILE (*crtend.o ) .ctors))
+      KEEP (*crtbegin?.o(.ctors))
+      KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o ) .ctors))
       KEEP (*(SORT(.ctors.*)))
       KEEP (*(.ctors))
 
       KEEP (*crtbegin.o(.dtors))
-      KEEP (*(EXCLUDE_FILE (*crtend.o ) .dtors))
+      KEEP (*crtbegin?.o(.dtors))
+      KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o ) .dtors))
       KEEP (*(SORT(.dtors.*)))
       KEEP (*(.dtors))
 
-      *(.jcr)
-      *(.dynamic)
-      *(.eh_frame_hdr)
-      KEEP (*(.eh_frame))
+      KEEP (*(.jcr))
       *(.fixup)
-      *(.gcc_except_table)
-      *(.gcc_except_table.*)
-      *(.got)
       *(.got1)
       *(.got2)
-      *(.got.plt)
+      *(.branch_lt)
+      *(.got)
       *(.plt)
       *(.tm_clone_table)
    } > datamem
 
+   .eh_frame : {
+      *(.eh_frame_hdr)
+      *(.eh_frame_entry .eh_frame_entry.*)
+
+      KEEP (*(.eh_frame))
+      *(.eh_frame.*)
+   } > datamem
+
    .data : {
-      *(.data)
-      *(.data.*)
-      *(.gnu.linkonce.d.*)
+      *(.data .data.* .gnu.linkonce.d.*)
       SORT(CONSTRUCTORS)
-
-      __sdata_start = .;
-      *(.sdata)
-      *(.sdata.*)
-      *(.gnu.linkonce.s.*)
-      __sdata_end = .;
-
-      __sdata2_start = .;
-      *(.sdata2)
-      *(.sdata2.*)
-      *(.gnu.linkonce.s2.*)
-      __sdata2_end = .;
+      *(.data1)
+      *(.sdata .sdata.* .gnu.linkonce.s.*)
    } > datamem
 
-   __bss_start = .;
    .bss (NOLOAD) : {
-      *(.dynbss)
-      *(.bss)
-      *(.bss.*)
-      *(.gnu.linkonce.b.*)
-      *(COMMON)
-
-      __sbss_start = .;
       *(.dynsbss)
-      *(.sbss)
-      *(.sbss.*)
-      *(.gnu.linkonce.sb.*)
+      *(.sbss .sbss.* .gnu.linkonce.sb.*)
       *(.scommon)
-      __sbss_end = .;
 
-      __sbss2_start = .;
-      *(.sbss2)
-      *(.sbss2.*)
-      *(.gnu.linkonce.sb2.*)
-      __sbss2_end = .;
+      *(.dynbss)
+      *(.bss .bss.* .gnu.linkonce.b.*)
+      *(COMMON)
    } > datamem
-   __bss_end = .;
-
-   . = ORIGIN(relmem);
-   .rela.text ALIGN(4) : {
-      *(.rela.text)
-      *(.rela.text.*)
-      *(.rela.gnu.linkonce.t.*)
-      *(.rela.init)
-      *(.rela.fini)
-   } > relmem
-   .rela.data ALIGN(4) : {
-      *(.rela.data)
-      *(.rela.data.*)
-      *(.rela.gnu.linkonce.d.*)
-      *(.rela.sdata)
-      *(.rela.gnu.linkonce.s.*)
-      *(.rela.sdata2)
-      *(.rela.gnu.linkonce.s2.*)
-      *(.rela.init_array)
-      *(.rela.fini_array)
-      *(.rela.gcc_except_table .rela.gcc_except_table.*)
-      *(.rela.eh_frame)
-      *(.rela.got)
-      *(.rela.got1)
-      *(.rela.got2)
-      *(.rela.got.plt)
-      *(.rela.plt)
-   } > relmem
-   .rela.rodata ALIGN(4) : {
-      *(.rela.rodata)
-      *(.rela.rodata.*)
-      *(.rel.gnu.linkonce.r.*)
-      *(.rela.ctors)
-      *(.rela.dtors)
-   } > relmem
 
    . = ORIGIN(loadmem);
    .fexports ALIGN(32) : { KEEP( *(.fexports) ) } > loadmem
@@ -434,19 +398,6 @@ SECTIONS
       KEEP ( *(.dimport_nn_uds) )
       *(.dimport_nn_uds.*)
    } > loadmem
-
-   .symtab ALIGN(4) : { *(.symtab) } > loadmem
-   .strtab ALIGN(1) : { *(.strtab) } > loadmem
-   .shstrtab ALIGN(1) : { *(.shstrtab) } > loadmem
-
-   __SDATA_START__ = __sdata_start;
-   __SBSS_END__ = __sbss_end;
-
-   __SDATA2_START__ = __sdata2_start;
-   __SBSS2_END__ = __sbss2_end;
-
-   _SDA_BASE_ = __sbss_end;
-   _SDA2_BASE_ = __sdata2_start + ((__sbss2_end - __sdata2_start) / 2);
 
    /DISCARD/ : {
       *(.abs)
